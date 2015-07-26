@@ -1,0 +1,159 @@
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JButton;
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import java.sql.*;
+
+public class Home {
+
+	private JFrame frame;
+	Connection connection = null;
+	private JTextField accountField;
+	private JTextField passwordField;
+	private JTextField usernameField;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Home window = new Home();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public Home() {
+		initialize();
+		connection = sqliteConnection.dbConnector();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		JButton addButton = new JButton("Add Entry");
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//add entry to database
+				try{
+					//prepare query
+					String query = "insert into AccountInfo (Account, Username, Password) values (?, ?, ?)";
+					PreparedStatement pst = connection.prepareStatement(query);
+					pst.setString(1, accountField.getText());
+					pst.setString(2, usernameField.getText());
+					pst.setString(3, passwordField.getText());
+					
+					//run query and close connection
+					if(pst.executeUpdate() != 0)
+						JOptionPane.showMessageDialog(null, "Entry has been successfully added");
+					else
+						JOptionPane.showMessageDialog(null, "Entry has been unsuccessfully added. Try again.");
+					pst.close();
+				} catch(Exception err){
+					JOptionPane.showMessageDialog(null, err);
+				}
+			}
+		});
+		addButton.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
+		addButton.setBounds(223, 227, 100, 23);
+		frame.getContentPane().add(addButton);
+		
+		JLabel lblTitle = new JLabel("Insert/Update Record");
+		lblTitle.setFont(new Font("Trebuchet MS", Font.BOLD, 16));
+		lblTitle.setBounds(22, 11, 167, 30);
+		frame.getContentPane().add(lblTitle);
+		
+		JLabel lblAccount = new JLabel("Account (account should be the same to update)");
+		lblAccount.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblAccount.setBounds(32, 52, 291, 14);
+		frame.getContentPane().add(lblAccount);
+		
+		accountField = new JTextField();
+		accountField.setText("ex. Facebook, Google");
+		accountField.setBounds(29, 71, 294, 20);
+		frame.getContentPane().add(accountField);
+		accountField.setColumns(10);
+		
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblPassword.setBounds(32, 161, 56, 14);
+		frame.getContentPane().add(lblPassword);
+		
+		passwordField = new JTextField();
+		passwordField.setText("Enter new password");
+		passwordField.setBounds(29, 186, 294, 20);
+		frame.getContentPane().add(passwordField);
+		passwordField.setColumns(10);
+		
+		JLabel lblUsername = new JLabel("Username");
+		lblUsername.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblUsername.setBounds(32, 108, 66, 14);
+		frame.getContentPane().add(lblUsername);
+		
+		usernameField = new JTextField();
+		usernameField.setText("Enter new username");
+		usernameField.setBounds(29, 130, 294, 20);
+		frame.getContentPane().add(usernameField);
+		usernameField.setColumns(10);
+		
+		JButton searchDelButton = new JButton("Search/Delete");
+		searchDelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				frame.dispose();
+				Search search = new Search();
+				search.setVisible(true);
+			}
+		});
+		searchDelButton.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
+		searchDelButton.setBounds(311, 16, 113, 23);
+		frame.getContentPane().add(searchDelButton);
+		
+		JButton updateButton = new JButton("Update");
+		updateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try{
+					//prepare query
+					String query = "update AccountInfo set Username='"+usernameField.getText()+"', Password='"+passwordField.getText()
+									+"' where Account='"+accountField.getText()+"'";
+					PreparedStatement pst = connection.prepareStatement(query);
+					
+					//run query and close connection
+					if(pst.executeUpdate() != 0)
+						JOptionPane.showMessageDialog(null, "Entry has been successfully updated");
+					else
+						JOptionPane.showMessageDialog(null, "Entry has been unsuccessfully updated. Try again.");
+					pst.close();
+				} catch(Exception err){
+					JOptionPane.showMessageDialog(null, err);
+				}
+			}
+		});
+		updateButton.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
+		updateButton.setBounds(135, 227, 78, 23);
+		frame.getContentPane().add(updateButton);
+	}
+	
+	public void setVisible(boolean visible){
+		frame.setVisible(visible);
+	}
+}
