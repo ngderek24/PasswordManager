@@ -35,11 +35,13 @@ public class PasswordManager {
 	private JTextField randPassField;
 	
 	// encryption variables
-	byte[] keyBytes = "eastog24".getBytes();
-	byte[] ivBytes = "tinosaur".getBytes();
-	SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
-	IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+	byte[] keyBytes;
+	byte[] ivBytes;
+	//SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
+	//IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 	Cipher cipher;
+	private JTextField keyField;
+	private JTextField IVField;
 
 	/**
 	 * Launch the application.
@@ -70,13 +72,13 @@ public class PasswordManager {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 450, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Password Manager");
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(10, 11, 414, 250);
+		tabbedPane.setBounds(10, 11, 414, 339);
 		frame.getContentPane().add(tabbedPane);
 
 		JPanel searchPanel = new JPanel();
@@ -187,6 +189,26 @@ public class PasswordManager {
 		passwordField.setBounds(21, 160, 306, 20);
 		insertPanel.add(passwordField);
 		
+		keyField = new JTextField();
+		keyField.setBounds(21, 208, 306, 20);
+		insertPanel.add(keyField);
+		keyField.setColumns(10);
+		
+		JLabel lblKey = new JLabel("Key");
+		lblKey.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblKey.setBounds(21, 191, 35, 14);
+		insertPanel.add(lblKey);
+		
+		IVField = new JTextField();
+		IVField.setBounds(21, 250, 306, 20);
+		insertPanel.add(IVField);
+		IVField.setColumns(10);
+		
+		JLabel lblIV = new JLabel("IV");
+		lblIV.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblIV.setBounds(21, 235, 46, 14);
+		insertPanel.add(lblIV);
+		
 		JButton addEntryBtn = new JButton("Add Entry");
 		addEntryBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -194,6 +216,8 @@ public class PasswordManager {
 				try{
 					// encrypt username
 					Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+					keyBytes = keyField.getText().getBytes();
+					ivBytes = IVField.getText().getBytes();
 					SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
 					IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 					cipher = Cipher.getInstance("DES/CTR/NoPadding", "BC");
@@ -231,7 +255,7 @@ public class PasswordManager {
 			}
 		});
 		addEntryBtn.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
-		addEntryBtn.setBounds(227, 191, 100, 23);
+		addEntryBtn.setBounds(227, 281, 100, 23);
 		insertPanel.add(addEntryBtn);
 
 		JPanel updatePanel = new JPanel();
@@ -277,8 +301,28 @@ public class PasswordManager {
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try{
+					// encrypt new username
+					Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+					SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
+					IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+					cipher = Cipher.getInstance("DES/CTR/NoPadding", "BC");
+					cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+					
+					byte[] input = userField.getText().getBytes();
+					byte[] cipherText = new byte[cipher.getOutputSize(input.length)];
+					int ctLength = cipher.update(input, 0, input.length, cipherText, 0);
+					ctLength += cipher.doFinal(cipherText, ctLength);
+					String encUsername = new String(cipherText);
+					
+					// encrypt new password
+					input = passField.getText().getBytes();
+					cipherText = new byte[cipher.getOutputSize(input.length)];
+					ctLength = cipher.update(input, 0, input.length, cipherText, 0);
+					ctLength += cipher.doFinal(cipherText, ctLength);
+					String encPassword = new String(cipherText);
+					
 					//prepare query
-					String query = "update AccountInfo set Username='"+userField.getText()+"', Password='"+passField.getText()
+					String query = "update AccountInfo set Username='"+encUsername+"', Password='"+encPassword
 									+"' where Account='"+accountField.getText()+"'";
 					PreparedStatement pst = connection.prepareStatement(query);
 					
