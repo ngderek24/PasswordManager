@@ -33,15 +33,18 @@ public class PasswordManager {
 	private JTextField userField;
 	private JTextField passField;
 	private JTextField randPassField;
+	private JTextField insKeyField;
+	private JTextField insIVField;
+	private JTextField searchKeyField;
+	private JTextField searchIVField;
+	private JTextField updateKeyField;
+	private JTextField updateIVField;
 	
 	// encryption variables
 	byte[] keyBytes;
 	byte[] ivBytes;
-	//SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
-	//IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 	Cipher cipher;
-	private JTextField keyField;
-	private JTextField IVField;
+	
 
 	/**
 	 * Launch the application.
@@ -100,6 +103,26 @@ public class PasswordManager {
 		accNameField.setBounds(21, 90, 306, 20);
 		searchPanel.add(accNameField);
 
+		searchKeyField = new JTextField();
+		searchKeyField.setBounds(21, 158, 306, 20);
+		searchPanel.add(searchKeyField);
+		searchKeyField.setColumns(10);
+		
+		JLabel lblSearchKey = new JLabel("Key (must be 8 characters)");
+		lblSearchKey.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblSearchKey.setBounds(21, 136, 185, 14);
+		searchPanel.add(lblSearchKey);
+		
+		searchIVField = new JTextField();
+		searchIVField.setBounds(21, 224, 306, 20);
+		searchPanel.add(searchIVField);
+		searchIVField.setColumns(10);
+		
+		JLabel lblSearchIV = new JLabel("IV (must be 8 characters)");
+		lblSearchIV.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblSearchIV.setBounds(21, 199, 173, 20);
+		searchPanel.add(lblSearchIV);
+		
 		JButton searchBtn = new JButton("Search");
 		searchBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -118,6 +141,8 @@ public class PasswordManager {
 						
 						// decrypt stored username
 						Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+						keyBytes = searchKeyField.getText().getBytes();
+						ivBytes = searchIVField.getText().getBytes();
 						SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
 						IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 						cipher = Cipher.getInstance("DES/CTR/NoPadding", "BC");
@@ -147,7 +172,7 @@ public class PasswordManager {
 			}
 		});
 		searchBtn.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
-		searchBtn.setBounds(253, 124, 74, 23);
+		searchBtn.setBounds(252, 266, 74, 23);
 		searchPanel.add(searchBtn);
 
 		JPanel insertPanel = new JPanel();
@@ -189,25 +214,25 @@ public class PasswordManager {
 		passwordField.setBounds(21, 160, 306, 20);
 		insertPanel.add(passwordField);
 		
-		keyField = new JTextField();
-		keyField.setBounds(21, 208, 306, 20);
-		insertPanel.add(keyField);
-		keyField.setColumns(10);
+		insKeyField = new JTextField();
+		insKeyField.setBounds(21, 208, 306, 20);
+		insertPanel.add(insKeyField);
+		insKeyField.setColumns(10);
 		
-		JLabel lblKey = new JLabel("Key");
-		lblKey.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
-		lblKey.setBounds(21, 191, 35, 14);
-		insertPanel.add(lblKey);
+		JLabel lblInsertKey = new JLabel("Key (must be 8 characters)");
+		lblInsertKey.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblInsertKey.setBounds(21, 191, 164, 14);
+		insertPanel.add(lblInsertKey);
 		
-		IVField = new JTextField();
-		IVField.setBounds(21, 250, 306, 20);
-		insertPanel.add(IVField);
-		IVField.setColumns(10);
+		insIVField = new JTextField();
+		insIVField.setBounds(21, 250, 306, 20);
+		insertPanel.add(insIVField);
+		insIVField.setColumns(10);
 		
-		JLabel lblIV = new JLabel("IV");
-		lblIV.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
-		lblIV.setBounds(21, 235, 46, 14);
-		insertPanel.add(lblIV);
+		JLabel lblInsertIV = new JLabel("IV (must be 8 characters)");
+		lblInsertIV.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblInsertIV.setBounds(21, 235, 164, 14);
+		insertPanel.add(lblInsertIV);
 		
 		JButton addEntryBtn = new JButton("Add Entry");
 		addEntryBtn.addActionListener(new ActionListener() {
@@ -216,8 +241,8 @@ public class PasswordManager {
 				try{
 					// encrypt username
 					Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-					keyBytes = keyField.getText().getBytes();
-					ivBytes = IVField.getText().getBytes();
+					keyBytes = insKeyField.getText().getBytes();
+					ivBytes = insIVField.getText().getBytes();
 					SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
 					IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 					cipher = Cipher.getInstance("DES/CTR/NoPadding", "BC");
@@ -297,12 +322,34 @@ public class PasswordManager {
 		passField.setBounds(21, 160, 306, 20);
 		updatePanel.add(passField);
 		
+		updateKeyField = new JTextField();
+		updateKeyField.setBounds(21, 210, 306, 20);
+		updatePanel.add(updateKeyField);
+		updateKeyField.setColumns(10);
+		
+		JLabel lblUpdateKey = new JLabel("Key (must be 8 characters)");
+		lblUpdateKey.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblUpdateKey.setBounds(21, 191, 202, 14);
+		updatePanel.add(lblUpdateKey);
+		
+		updateIVField = new JTextField();
+		updateIVField.setBounds(21, 255, 306, 20);
+		updatePanel.add(updateIVField);
+		updateIVField.setColumns(10);
+		
+		JLabel lblUpdateIV = new JLabel("IV (must be 8 characters)");
+		lblUpdateIV.setFont(new Font("Trebuchet MS", Font.PLAIN, 13));
+		lblUpdateIV.setBounds(21, 240, 162, 14);
+		updatePanel.add(lblUpdateIV);
+		
 		JButton updateBtn = new JButton("Update");
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try{
 					// encrypt new username
 					Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+					keyBytes = updateKeyField.getText().getBytes();
+					ivBytes = updateIVField.getText().getBytes();
 					SecretKeySpec key = new SecretKeySpec(keyBytes, "DES");
 					IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 					cipher = Cipher.getInstance("DES/CTR/NoPadding", "BC");
@@ -338,7 +385,7 @@ public class PasswordManager {
 			}
 		});
 		updateBtn.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
-		updateBtn.setBounds(249, 191, 78, 23);
+		updateBtn.setBounds(249, 284, 78, 23);
 		updatePanel.add(updateBtn);
 
 		JPanel deletePanel = new JPanel();
@@ -404,16 +451,16 @@ public class PasswordManager {
 		JSpinner passLenSpinner = new JSpinner();
 		passLenSpinner.setModel(new SpinnerNumberModel(4, 4, 40, 1));
 		passLenSpinner.setFont(new Font("Trebuchet MS", Font.PLAIN, 12));
-		passLenSpinner.setBounds(21, 97, 69, 20);
+		passLenSpinner.setBounds(21, 97, 77, 20);
 		passGenPanel.add(passLenSpinner);
 		
 		JRadioButton rdbtnAllChar = new JRadioButton("All characters");
 		rdbtnAllChar.setSelected(true);
-		rdbtnAllChar.setBounds(96, 93, 109, 23);
+		rdbtnAllChar.setBounds(120, 93, 109, 23);
 		passGenPanel.add(rdbtnAllChar);
 		
 		JRadioButton rdbtnLetters_Num = new JRadioButton("Letters/Numbers");
-		rdbtnLetters_Num.setBounds(96, 117, 120, 23);
+		rdbtnLetters_Num.setBounds(120, 118, 120, 23);
 		passGenPanel.add(rdbtnLetters_Num);
 		
 		ButtonGroup rdbtnGroup = new ButtonGroup();
@@ -451,7 +498,7 @@ public class PasswordManager {
 			}
 		});
 		generateBtn.setFont(new Font("Trebuchet MS", Font.BOLD, 12));
-		generateBtn.setBounds(235, 96, 90, 23);
+		generateBtn.setBounds(235, 217, 90, 23);
 		passGenPanel.add(generateBtn);
 	}
 }
